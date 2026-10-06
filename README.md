@@ -1,6 +1,6 @@
 # Nerkhsanj API: Iran free-market exchange rates in toman
 
-Free, keyless JSON data from [Nerkhsanj (نرخ‌سنج)](https://nerkh.jahankhahan.shop/): live Tehran free-market rates for 15 series (US dollar, euro, UAE dirham, Turkish lira, British pound, Chinese yuan, Tether, Bitcoin, 18k and 24k gold, and five gold coins), a daily archive going back to 2010, intraday points, a gold calculator, and a calculator that tells you what an item bought in the past costs today.
+Free, keyless JSON data from [Nerkhsanj (نرخ‌سنج)](https://nerkh.jahankhahan.shop/): live Tehran free-market rates for 28 series (US dollar, euro, pound, UAE dirham, Turkish lira, Chinese yuan and eleven more regional currencies, Tether, Bitcoin, gold, silver and five gold coins), a daily archive going back to 2010, intraday points, a currency converter, a gold calculator, and a calculator that tells you what an item bought in the past costs today.
 
 No API key, no sign-up. All amounts are in Iranian toman (1 toman = 10 rial). Dates are Jalali (Solar Hijri), written `1404/07/15`.
 
@@ -10,11 +10,16 @@ No API key, no sign-up. All amounts are in Iranian toman (1 toman = 10 rial). Da
 
 | Endpoint | What it returns | Updated |
 |---|---|---|
-| `GET https://nerkh.jahankhahan.shop/data/live.json` | Current rate of all 15 series, plus the world gold ounce in USD | Every minute |
+| `GET https://nerkh.jahankhahan.shop/data/live.json` | Current rate of all 28 toman series, plus world gold and silver ounce prices in USD | Every minute |
 | `GET https://nerkh.jahankhahan.shop/data/intraday.json` | Today's low, high and ten-minute points per series | Every minute in market hours |
 | `GET https://nerkh.jahankhahan.shop/data/rates.json` | Closing rate of every trading day | Three times a day |
 | `GET https://nerkh.jahankhahan.shop/calc?price=…&date=…&format=json` | Replacement cost and sell price of one item | Live |
 | `GET https://nerkh.jahankhahan.shop/gold-calculator?format=json` | Intrinsic value and premium of gold and coins; jewelry price with wage, profit and tax | Live |
+| `GET https://nerkh.jahankhahan.shop/convert/dollar-to-toman?amount=100&format=json` | Convert between toman and any series, or between two series | Live |
+| `GET https://nerkh.jahankhahan.shop/value?amount=…&date=…&format=json` | What an amount from the past is worth today, by dollar, euro, gold and coin | Live |
+| `GET https://nerkh.jahankhahan.shop/compare?from=…&to=…&format=json` | Percent change of every series between two dates | Live |
+| `GET https://nerkh.jahankhahan.shop/rate/dollar` and `/rate/dollar/1403/07/15` | One number as plain text, for Excel `WEBSERVICE` and Google Sheets `IMPORTDATA` | Live |
+| `GET https://nerkh.jahankhahan.shop/data/rates-usd.json` | Daily archive of the world gold and silver ounce in USD | Three times a day |
 
 Full reference: [English](https://nerkh.jahankhahan.shop/developers/en) · [فارسی](https://nerkh.jahankhahan.shop/developers)
 
@@ -30,7 +35,7 @@ Full reference: [English](https://nerkh.jahankhahan.shop/developers/en) · [فا
 }
 ```
 
-The example is shortened; the real file carries all 15 keys. `time` is empty outside market hours; the rates are then the last trading day's close. `change` is the percent change against the previous day. `ounce` is the world gold price per troy ounce in US dollars.
+The example is shortened; the real file carries all 28 keys, and a `usd` object with `ounce` and `silver-ounce`. `time` is empty outside market hours; the rates are then the last trading day's close. `change` is the percent change against the previous day. `ounce` is the world gold price per troy ounce in US dollars.
 
 ### Daily archive
 
@@ -55,6 +60,11 @@ The example is shortened; the real file carries all 15 keys. `time` is empty out
 | `half` | Half coin | 1392 |
 | `quarter` | Quarter coin | 1392 |
 | `gram` | One-gram coin | 1392 |
+| `mesghal` | Gold mesghal (4.6083 g) | 1392 |
+| `silver` | Silver 999, per gram | 1399 |
+| `cad`, `aud`, `chf` | Canadian dollar, Australian dollar, Swiss franc | 1393 |
+| `sar`, `qar`, `kwd`, `omr` | Saudi riyal, Qatari riyal, Kuwaiti dinar, Omani rial | 1393 |
+| `iqd`, `afn`, `rub`, `inr` | Iraqi dinar, Afghan afghani, Russian ruble, Indian rupee | 1393 |
 
 Holidays have no row; use the last earlier trading day.
 
@@ -81,6 +91,9 @@ Formula: `replacement_cost = price × (rate_now ÷ rate_on_purchase_date)`.
 
 - **Widget:** show live rates on any site with two lines of HTML. Builder: [nerkh.jahankhahan.shop/widget](https://nerkh.jahankhahan.shop/widget)
 - **WooCommerce plugin:** keeps product prices in step with the exchange rate from each product's purchase price and date. Download: [nerkh.jahankhahan.shop/woocommerce](https://nerkh.jahankhahan.shop/woocommerce)
+- **WordPress rates plugin:** a `[nerkhsanj]` shortcode and a sidebar widget, rendered server-side. Download from the same widget page
+- **Excel and Google Sheets:** one-formula rates, no add-on needed: [nerkh.jahankhahan.shop/excel](https://nerkh.jahankhahan.shop/excel)
+- **Currency converter:** [nerkh.jahankhahan.shop/convert](https://nerkh.jahankhahan.shop/convert)
 - **Today's rates page:** [nerkh.jahankhahan.shop/today](https://nerkh.jahankhahan.shop/today)
 
 ```html
@@ -114,7 +127,7 @@ The example code in this repository is released under the MIT license.
 
 ## راهنمای فارسی
 
-[نرخ‌سنج](https://nerkh.jahankhahan.shop/) دادهٔ نرخ بازار آزاد تهران را رایگان، بدون کلید (API Key) و بدون ثبت‌نام می‌دهد: ۱۵ معیار شامل دلار، یورو، درهم، لیر، پوند، یوان، تتر، بیت‌کوین، طلای ۱۸ و ۲۴ عیار، سکهٔ امامی، بهار آزادی، نیم‌سکه، ربع‌سکه و سکهٔ گرمی. همهٔ مبلغ‌ها به تومان و تاریخ‌ها شمسی است.
+[نرخ‌سنج](https://nerkh.jahankhahan.shop/) دادهٔ نرخ بازار آزاد تهران را رایگان، بدون کلید (API Key) و بدون ثبت‌نام می‌دهد: ۲۸ معیار شامل دلار، یورو، پوند، درهم، لیر، یوان و یازده ارز دیگر منطقه، تتر، بیت‌کوین، طلای ۱۸ و ۲۴ عیار، مثقال، نقره و پنج نوع سکه؛ به‌علاوهٔ انس جهانی طلا و نقره به دلار. همهٔ مبلغ‌ها به تومان و تاریخ‌ها شمسی است.
 
 ### نشانی‌ها
 
@@ -123,6 +136,10 @@ The example code in this repository is released under the MIT license.
 - **نرخ درون‌روزی** (کمترین، بیشترین و نقطه‌های ده‌دقیقه‌ای امروز): `https://nerkh.jahankhahan.shop/data/intraday.json`
 - **محاسبهٔ قیمت روز کالا**: `https://nerkh.jahankhahan.shop/calc?price=830000&date=1404/07/15&margin=20&format=json`
 - **ماشین‌حساب طلا** (ارزش ذاتی و حباب طلا و سکه، قیمت با اجرت): `https://nerkh.jahankhahan.shop/gold-calculator?format=json`
+- **مبدل ارز**: `https://nerkh.jahankhahan.shop/convert/dollar-to-toman?amount=100&format=json`
+- **ارزش پول سال‌های قبل**: `https://nerkh.jahankhahan.shop/value?amount=10000000&date=1398/01/15&format=json`
+- **مقایسهٔ رشد معیارها بین دو تاریخ**: `https://nerkh.jahankhahan.shop/compare?from=1403/01/15&format=json`
+- **نرخ به‌صورت متن ساده برای اکسل و گوگل‌شیت**: `https://nerkh.jahankhahan.shop/rate/dollar` و `https://nerkh.jahankhahan.shop/rate/dollar/1403/07/15`
 
 پارامترهای محاسبه: `price` قیمت خرید به تومان، `date` تاریخ خرید شمسی، `margin` درصد سود (اختیاری)، `adj` درصد تعدیل بازار (اختیاری)، `series` یکی از کلیدهای جدول بالا، مثل `dollar`، `aed` یا `lira`.
 
